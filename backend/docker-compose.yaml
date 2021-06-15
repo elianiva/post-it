@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  database:
+    image: postgres:13.3-alpine
+    container_name: post_it_db
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker/postgres/data:/var/lib/postgresql/data/
+    env_file:
+      - .env
