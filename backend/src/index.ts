@@ -1,5 +1,13 @@
 import Fastify, { FastifyInstance } from "fastify";
+import fastifyCookie from "fastify-cookie";
 import { IncomingMessage, Server, ServerResponse } from "http";
+import { createConnection } from "typeorm";
+import dotenv from "dotenv";
+import { User } from "./entities/User";
+import { AuthRoutes } from "./routes/Auth";
+
+dotenv.config();
+const { DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD } = process.env;
 
 class App {
   private PORT = 3000;
@@ -9,8 +17,13 @@ class App {
     server: FastifyInstance<Server, IncomingMessage, ServerResponse>
   ) {
     this.server = server;
-    this.init();
-    this.registerRoutes();
+    (async () => {
+      // wait for the database to be ready
+      await this.connectDatabase();
+      this.registerPlugins();
+      this.registerRoutes();
+      this.init();
+    })();
   }
 
   init() {
@@ -25,6 +38,32 @@ class App {
 
   registerRoutes() {
     this.server.get("/", async () => ({ hello: "world" }));
+
+    this.server.register(AuthRoutes, { prefix: "/api/auth" });
+  }
+
+  registerPlugins() {
+    this.server.register(fastifyCookie, {
+      secret: process.env.COOKIE_SECRET as string,
+    });
+  }
+
+  async connectDatabase() {
+    try {
+      await createConnection({
+        type: "postgres",
+        host: DB_HOST,
+        database: DB_NAME,
+        username: DB_USERNAME,
+        password: DB_PASSWORD,
+        synchronize: true,
+        logging: false,
+        entities: [User],
+      });
+    } catch (err) {
+      this.server.log.error(err);
+      process.exit(1);
+    }
   }
 }
 
