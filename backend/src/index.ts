@@ -1,17 +1,19 @@
+import dotenv from "dotenv";
 import Fastify, { FastifyInstance } from "fastify";
 import fastifyCookie from "fastify-cookie";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { createConnection } from "typeorm";
-import dotenv from "dotenv";
+import { Post } from "./entities/Post";
 import { User } from "./entities/User";
 import { AuthRoutes } from "./routes/Auth";
+import { PostRoutes } from "./routes/Post";
 
 dotenv.config();
 const { DB_HOST, DB_NAME, DB_USERNAME, DB_PASSWORD } = process.env;
 
-class App {
+export class App {
   private PORT = 3000;
-  private server: FastifyInstance<Server, IncomingMessage, ServerResponse>;
+  public server: FastifyInstance<Server, IncomingMessage, ServerResponse>;
 
   constructor(
     server: FastifyInstance<Server, IncomingMessage, ServerResponse>
@@ -40,6 +42,7 @@ class App {
     this.server.get("/", async () => ({ hello: "world" }));
 
     this.server.register(AuthRoutes, { prefix: "/api/auth" });
+    this.server.register(PostRoutes, { prefix: "/api/post" });
   }
 
   registerPlugins() {
@@ -58,7 +61,7 @@ class App {
         password: DB_PASSWORD,
         synchronize: true,
         logging: false,
-        entities: [User],
+        entities: [User, Post],
       });
     } catch (err) {
       this.server.log.error(err);
