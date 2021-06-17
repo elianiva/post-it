@@ -28,7 +28,7 @@ export class App {
     })();
   }
 
-  init() {
+  init(): void {
     this.server
       .listen(this.PORT)
       .then(() => console.log(`Server started on port: ${this.PORT}`))
@@ -38,20 +38,20 @@ export class App {
       });
   }
 
-  registerRoutes() {
+  registerRoutes(): void {
     this.server.get("/", async () => ({ hello: "world" }));
 
     this.server.register(AuthRoutes, { prefix: "/api/auth" });
     this.server.register(PostRoutes, { prefix: "/api/post" });
   }
 
-  registerPlugins() {
+  registerPlugins(): void {
     this.server.register(fastifyCookie, {
       secret: process.env.COOKIE_SECRET as string,
     });
   }
 
-  async connectDatabase() {
+  async connectDatabase(): Promise<void> {
     try {
       await createConnection({
         type: "postgres",
