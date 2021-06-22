@@ -1,8 +1,13 @@
 import React from "react";
-import "./App.css";
+import { BrowserRouter as Router, Route } from "react-router-dom";
+import Login from "./pages/Login";
 
 function App(): JSX.Element {
-  return <div className="App">Hello World!</div>;
+  return (
+    <Router>
+      <Route path="/login" component={Login} />
+    </Router>
+  );
 }
 
 export default App;
