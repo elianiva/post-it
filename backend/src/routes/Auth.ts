@@ -17,8 +17,16 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
 ) => {
   const userRepo = getRepository(User);
 
-  server.post("/register", async req => {
+  server.post("/register", async (req, reply) => {
     const { email, username, password } = req.body as Record<string, string>;
+    if (!email || !username || !password) {
+      return reply.status(400).send({
+        status: 400,
+        msg: "Invalid request!",
+        data: [],
+      });
+    }
+
     const id = nanoid();
 
     const user = await userRepo.findOne({
@@ -28,7 +36,7 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
     if (user) {
       return {
         status: 400,
-        msg: `User with email of ${email} has already exists!`,
+        msg: `User with email of ${email} is already exists!`,
         data: [],
       };
     }
@@ -41,18 +49,18 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
         password: await hash(password),
       });
 
-      return {
+      return reply.status(201).send({
         status: 201,
         msg: `User with ID of ${id} has been successfully registered`,
         data: [],
-      };
+      });
     } catch (err) {
       server.log.error(err);
-      return {
+      return reply.status(500).send({
         status: 500,
         msg: "Internal server error",
         data: [],
-      };
+      });
     }
   });
 

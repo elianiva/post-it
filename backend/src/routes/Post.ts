@@ -21,7 +21,7 @@ export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
     const token = req.headers.authorization?.slice("Bearer ".length);
 
     if (!token) {
-      reply.send({
+      reply.status(401).send({
         status: 401,
         msg: "Unauthorized!",
         data: [],
