@@ -7,7 +7,11 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 import { nanoid } from "nanoid";
 import { User } from "../entities/User";
 import { compare, hash } from "../utils/hash";
-import { createAccessToken, createRefreshToken } from "../utils/jwt";
+import {
+  createAccessToken,
+  createRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt";
 import { getRepository } from "typeorm";
 
 export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
@@ -89,8 +93,8 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
       };
     }
 
-    const refreshToken = createRefreshToken({id: user.id});
-    const accessToken = createAccessToken({id: user.id});
+    const refreshToken = createRefreshToken({ id: user.id });
+    const accessToken = createAccessToken({ id: user.id });
 
     reply
       .setCookie("_tkn", refreshToken, {
@@ -101,11 +105,43 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
       .send({
         status: 200,
         msg: "Logged in successfully",
-        data: {
-          // save the actual token in the memory later
-          token: accessToken,
-        },
+        data: { token: accessToken },
       });
+  });
+
+  server.get("/refresh_token", async (req, reply) => {
+    try {
+      const token = req.cookies["_tkn"];
+      console.log(token)
+      const decoded = (await verifyRefreshToken(token)) as { id: string };
+
+      const user = await User.findOne(decoded.id);
+
+      if (!user) {
+        throw new Error("User is not found!");
+      }
+
+      const refreshToken = createRefreshToken({ id: user.id });
+      const accessToken = createAccessToken({ id: user.id });
+
+      reply
+        .setCookie("_tkn", refreshToken, {
+          httpOnly: true,
+          signed: true,
+        })
+        .send({
+          status: 200,
+          msg: `Successfully generated a new token for user with ID of ${user.id}`,
+          data: { token: accessToken },
+        });
+    } catch (err) {
+      console.error(err);
+      return reply.status(500).send({
+        status: 500,
+        msg: "Internal server error.",
+        data: [],
+      });
+    }
   });
   done();
 };
