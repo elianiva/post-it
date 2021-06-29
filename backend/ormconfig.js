@@ -11,7 +11,7 @@ export default {
   database: DB_NAME,
   synchronize: true,
   logging: false,
-  dropSchema: true,
+  dropSchema: false,
   migrationsRun: true,
   entities: ["src/entities/*.ts", "build/src/entities/*.js"],
   migrations: ["src/migrations/*.ts"],
