@@ -6,7 +6,7 @@ import {
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { nanoid } from "nanoid";
 import { Post } from "../entities/Post";
-import { verify } from "../utils/jwt";
+import { verifyAccessToken } from "../utils/jwt";
 import { getRepository } from "typeorm";
 
 export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
@@ -30,7 +30,7 @@ export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
       return;
     }
 
-    verify(token)
+    verifyAccessToken(token)
       .then(data => {
         // @ts-ignore
         req.user = data;

@@ -7,7 +7,7 @@ import { IncomingMessage, Server, ServerResponse } from "http";
 import { nanoid } from "nanoid";
 import { User } from "../entities/User";
 import { compare, hash } from "../utils/hash";
-import { sign } from "../utils/jwt";
+import { createAccessToken, createRefreshToken } from "../utils/jwt";
 import { getRepository } from "typeorm";
 
 export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
@@ -81,8 +81,8 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
       };
     }
 
-    const refreshToken = sign({ id: user.id }, true);
-    const token = sign({ id: user.id, username }, false);
+    const refreshToken = createRefreshToken({id: user.id});
+    const accessToken = createAccessToken({id: user.id});
 
     reply
       .setCookie("_tkn", refreshToken, {
@@ -95,7 +95,7 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
         msg: "Logged in successfully",
         data: {
           // save the actual token in the memory later
-          token,
+          token: accessToken,
         },
       });
   });
