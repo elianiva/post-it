@@ -7,6 +7,8 @@ import {
   Heading,
   Spacer,
   Link,
+  LinkBox,
+  LinkOverlay,
 } from "@chakra-ui/react";
 import React from "react";
 import { Link as RouteLink, useLocation } from "react-router-dom";
@@ -44,11 +46,16 @@ export default function Navbar(): JSX.Element {
             <Box as="span" fontWeight="600" color="gray.600">
               About
             </Box>
-            <Button colorScheme="blue" outline="none">
-              <Link to={isLoginPage ? "/signup" : "login"}>
-                {isLoginPage ? "Sign Up" : "Login"}
-              </Link>
-            </Button>
+            <LinkBox as="div">
+              <Button colorScheme="blue" outline="none">
+                <LinkOverlay
+                  as={RouteLink}
+                  to={isLoginPage ? "/signup" : "/login"}
+                >
+                  {isLoginPage ? "Sign Up" : "Login"}
+                </LinkOverlay>
+              </Button>
+            </LinkBox>
           </Flex>
         </Flex>
       </Container>
