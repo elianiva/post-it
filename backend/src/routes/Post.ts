@@ -18,7 +18,7 @@ export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
 
   server.decorateRequest("user", null);
   server.addHook("onRequest", (req, reply, done) => {
-    const token = req.headers.authorization?.slice("Bearer ".length);
+    const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
       reply.status(401).send({
@@ -57,13 +57,13 @@ export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
   server.post("/create", async req => {
     const id = nanoid();
     // @ts-ignore
-    const { id: user_id } = req.user as Record<string, string>;
+    const { id: userId } = req.user as { id: string };
     const { content } = req.body as Record<string, string>;
 
     try {
       const post = await postRepo.save({
         id,
-        user_id,
+        user_id: userId,
         content,
       });
       return {
