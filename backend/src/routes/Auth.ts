@@ -88,7 +88,7 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
     if (!isVerified) {
       return {
         status: 400,
-        msg: `Wrong password!`,
+        msg: "Wrong password!",
         data: [],
       };
     }
@@ -100,7 +100,6 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
       .setCookie("_tkn", refreshToken, {
         // save the refresh token in the httpOnly cookie
         httpOnly: true,
-        signed: true,
       })
       .send({
         status: 200,
@@ -111,11 +110,23 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
 
   server.get("/refresh_token", async (req, reply) => {
     try {
-      const token = req.cookies["_tkn"];
-      console.log(token)
-      const decoded = (await verifyRefreshToken(token)) as { id: string };
+      const token = req.cookies._tkn;
 
-      const user = await User.findOne(decoded.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let payload: any = null;
+      try {
+        payload = await verifyRefreshToken(token);
+      } catch (err) {
+        console.log(err);
+        reply.status(400).send({
+          status: 400,
+          msg: "Failed to verify the refresh token",
+          data: [],
+        });
+        return;
+      }
+
+      const user = await User.findOne(payload.id);
 
       if (!user) {
         throw new Error("User is not found!");
