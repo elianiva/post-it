@@ -2,8 +2,8 @@ import Fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
 import fastifyCookie from "fastify-cookie";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { createConnection } from "typeorm";
-import { AuthRoutes } from "../routes/Auth";
-import { PostRoutes } from "../routes/Post";
+import { AuthRoutes } from "./routes/Auth";
+import { PostRoutes } from "./routes/Post";
 
 const PORT = 3000;
 
