@@ -1,5 +1,6 @@
 {
-  "version": "0.0.0",
+  "name": "post-it-frontend",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -12,6 +13,7 @@
     "framer-motion": "^4.1.17",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
+    "react-hook-form": "^7.10.1",
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
