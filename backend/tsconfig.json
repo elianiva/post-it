@@ -4,38 +4,42 @@
     "incremental": true,
     "target": "es6",
     "module": "commonjs",
-    "lib": ["es5", "es6"],
+    "lib": [
+      "es5",
+      "es6"
+    ],
     "sourceMap": true,
     "outDir": "./build",
     "rootDir": "./",
     "removeComments": true,
     "allowJs": true,
-
     /* Strict Type-Checking Options */
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
-
     /* Additional Checks */
     "noUnusedLocals": true,
-
     /* Module Resolution Options */
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "*": ["node_modules/*"]
+      "*": [
+        "node_modules/*"
+      ],
+      "#/*": [
+        "./src/*"
+      ]
     },
     "esModuleInterop": true,
-
     /* Experimental decorators */
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-
     /* Advanced Options */
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["./src/**/*.ts"]
+  "include": [
+    "./src/**/*.ts"
+  ]
 }
-

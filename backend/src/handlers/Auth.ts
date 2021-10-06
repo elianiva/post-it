@@ -5,13 +5,13 @@ import {
 } from "fastify";
 import { IncomingMessage, Server, ServerResponse } from "http";
 import { nanoid } from "nanoid";
-import { User } from "../entities/User";
-import { compare, hash } from "../utils/hash";
+import { User } from "#/business/entities/User";
+import { compare, hash } from "#/platform/bcrypt/hash";
 import {
   createAccessToken,
   createRefreshToken,
-  verifyRefreshToken,
-} from "../utils/jwt";
+  verifyRefreshTokenAsync,
+} from "#/platform/jwt/jwt";
 import { getRepository } from "typeorm";
 
 export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
@@ -112,10 +112,11 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
     try {
       const token = req.cookies._tkn;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let payload: any = null;
+      type Payload = { id?: string };
+      let payload: Payload = {};
+
       try {
-        payload = await verifyRefreshToken(token);
+        payload = (await verifyRefreshTokenAsync(token)) as Payload;
       } catch (err) {
         console.log(err);
         reply.status(400).send({
@@ -128,9 +129,7 @@ export const AuthRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
 
       const user = await User.findOne(payload.id);
 
-      if (!user) {
-        throw new Error("User is not found!");
-      }
+      if (!user) throw new Error("User is not found!");
 
       const refreshToken = createRefreshToken({ id: user.id });
       const accessToken = createAccessToken({ id: user.id });

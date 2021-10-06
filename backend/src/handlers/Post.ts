@@ -1,13 +1,13 @@
-import {
+import { nanoid } from "nanoid";
+import { getRepository } from "typeorm";
+import type {
   FastifyInstance,
   FastifyPluginCallback,
   FastifyPluginOptions,
 } from "fastify";
-import { IncomingMessage, Server, ServerResponse } from "http";
-import { nanoid } from "nanoid";
-import { Post } from "../entities/Post";
-import { verifyAccessToken } from "../utils/jwt";
-import { getRepository } from "typeorm";
+import type { IncomingMessage, Server, ServerResponse } from "http";
+import { Post } from "#/business/entities/Post";
+import { verifyAccessTokenAsync } from "#/platform/jwt/jwt";
 
 export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
   server: FastifyInstance<Server, IncomingMessage, ServerResponse>,
@@ -30,19 +30,20 @@ export const PostRoutes: FastifyPluginCallback<FastifyPluginOptions, Server> = (
       return;
     }
 
-    verifyAccessToken(token)
-      .then(data => {
+    try {
+      const data = verifyAccessTokenAsync(token);
+      // @ts-ignore
+      req.user = data;
+    } catch (err) {
+      reply.send({
+        status: 401,
         // @ts-ignore
-        req.user = data;
-      })
-      .catch(err =>
-        reply.send({
-          status: 401,
-          msg: err.message,
-          data: [],
-        })
-      )
-      .finally(done);
+        msg: err.message,
+        data: [],
+      });
+    } finally {
+      done();
+    }
   });
 
   server.get("/", async () => {
