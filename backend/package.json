@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "@types/node": "^16.10.9",
+    "dotenv": "^10.0.0",
+    "esbuild": "^0.13.6",
+    "esbuild-node-loader": "^0.4.2",
+    "fastify": "^3.22.0",
+    "nodemon": "^2.0.13"
+  },
+  "scripts": {
+    "dev:start": "node --experimental-loader esbuild-node-loader -r dotenv/config src/index.ts",
+    "dev": "nodemon -e ts --watch src --exec \"npm run dev:start\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elianiva/post-it.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/elianiva/post-it/issues"
+  },
+  "homepage": "https://github.com/elianiva/post-it#readme"
+}
