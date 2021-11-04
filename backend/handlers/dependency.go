@@ -1,7 +1,9 @@
 package handlers
 
-import "post-it-backend/prisma/db"
+import (
+	"github.com/jackc/pgx/v4"
+)
 
 type Dependency struct {
-	DB *db.PrismaClient
+	Conn *pgx.Conn
 }

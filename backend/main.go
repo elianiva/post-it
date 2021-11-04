@@ -1,43 +1,63 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	_ "post-it-backend/business/models"
 	"post-it-backend/handlers"
-	"post-it-backend/prisma/db"
+	"post-it-backend/platform/migration"
+	"post-it-backend/repository"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/jackc/pgx/v4"
 
 	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
 	app := App()
+	ctx := context.Background()
 
-	// setup and connect prisma client to postgresql
-	client := db.NewClient()
-	err := client.Prisma.Connect()
+	config, err := pgx.ParseConfig(repository.DSN)
 	if err != nil {
-		log.Fatalf("Prisma client failed to connect. Reason: %v", err)
+		log.Fatalf("Failed to parse config. Reason: %v", err)
+	}
+
+	conn, err := pgx.ConnectConfig(ctx, config)
+	if err != nil {
+		log.Fatalf("Failed to start connection. Reason: %v", err)
 		os.Exit(1)
 	}
-	defer func() {
-		if err := client.Prisma.Disconnect(); err != nil {
-			log.Fatalf("Prisma client failed to disconnect. Reason: %v", err)
-		}
-	}()
+	defer conn.Close(ctx)
 
 	r := &handlers.Dependency{
-		DB: client,
+		Conn: conn,
 	}
 
-	registerRoutes(r, app)
+	if os.Getenv("MIGRATE") == "true" {
+		err = migration.Drop(ctx, r.Conn)
+		if err != nil {
+			log.Printf("Failed to drop table. Reason: %v", err)
+			return
+		}
+		fmt.Println("======")
+		err := migration.Migrate(ctx, r.Conn)
+		if err != nil {
+			log.Printf("Failed to migrate table. Reason: %v", err)
+			return
+		}
+		return
+	}
+
+	registerRoutes(app, r)
 	runApp(app)
 }
 
-func registerRoutes(r *handlers.Dependency, app *fiber.App) {
+func registerRoutes(app *fiber.App, r *handlers.Dependency) {
 	// sanity check
 	app.Get("/", r.Hello)
 
