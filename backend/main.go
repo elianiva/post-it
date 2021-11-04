@@ -4,7 +4,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	h "post-it-backend/handlers"
+	"post-it-backend/handlers"
+	"post-it-backend/prisma/db"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -15,14 +16,33 @@ import (
 func main() {
 	app := App()
 
-	registerRoutes(app)
+	// setup and connect prisma client to postgresql
+	client := db.NewClient()
+	err := client.Prisma.Connect()
+	if err != nil {
+		log.Fatalf("Prisma client failed to connect. Reason: %v", err)
+		os.Exit(1)
+	}
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			log.Fatalf("Prisma client failed to disconnect. Reason: %v", err)
+		}
+	}()
+
+	r := &handlers.Dependency{
+		DB: client,
+	}
+
+	registerRoutes(r, app)
 	runApp(app)
 }
 
-func registerRoutes(app *fiber.App) {
-	app.Use(cors.New())
+func registerRoutes(r *handlers.Dependency, app *fiber.App) {
+	// sanity check
+	app.Get("/", r.Hello)
 
-	app.Get("/", h.Hello)
+	api := app.Group("api", cors.New())
+	api.Get("/users", r.AllUsers)
 }
 
 func runApp(app *fiber.App) {
