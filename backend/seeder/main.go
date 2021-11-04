@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"post-it-backend/prisma/db"
 )
 
@@ -13,6 +14,7 @@ func main() {
 	err := client.Prisma.Connect()
 	if err != nil {
 		log.Fatalf("Prisma client failed to connect. Reason: %v", err)
+		os.Exit(1)
 	}
 
 	defer func() {
@@ -36,6 +38,7 @@ func createUsers(client *db.PrismaClient, ctx context.Context) error {
 			"password":  db.User.Password.Set("manusia1234"),
 			"fullname":  db.User.FullName.Set("Manusia Bernapas"),
 			"avatarUrl": db.User.AvatarURL.Set("https://avatars.dicebear.com/api/micah/manusia.svg"),
+			"about":     db.User.About.Set("Your friendly neighbourhood breathing hooman"),
 		},
 		{
 			"email":     db.User.Email.Set("foo@bar.com"),
@@ -43,6 +46,7 @@ func createUsers(client *db.PrismaClient, ctx context.Context) error {
 			"password":  db.User.Password.Set("foobar1234"),
 			"fullname":  db.User.FullName.Set("Foo Bar Baz"),
 			"avatarUrl": db.User.AvatarURL.Set("https://avatars.dicebear.com/api/micah/FooBar.svg"),
+			"about":     db.User.About.Set("You thought it was foo bar, but it was me! Asdf"),
 		},
 		{
 			"email":     db.User.Email.Set("hooman@business.co"),
@@ -60,6 +64,7 @@ func createUsers(client *db.PrismaClient, ctx context.Context) error {
 			u["password"].(db.UserWithPrismaPasswordSetParam),
 			u["fullname"].(db.UserWithPrismaFullNameSetParam),
 			u["avatarUrl"].(db.UserWithPrismaAvatarURLSetParam),
+			u["about"].(db.UserWithPrismaAboutSetParam),
 		).Exec(ctx)
 		if err != nil {
 			return err
