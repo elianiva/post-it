@@ -35,21 +35,21 @@ func createUsers(client *db.PrismaClient, ctx context.Context) error {
 			"username":  db.User.Username.Set("manusia"),
 			"password":  db.User.Password.Set("manusia1234"),
 			"fullname":  db.User.FullName.Set("Manusia Bernapas"),
-			"avatarUrl": nil,
+			"avatarUrl": db.User.AvatarURL.Set("https://avatars.dicebear.com/api/micah/manusia.svg"),
 		},
 		{
 			"email":     db.User.Email.Set("foo@bar.com"),
 			"username":  db.User.Username.Set("FooBar"),
 			"password":  db.User.Password.Set("foobar1234"),
 			"fullname":  db.User.FullName.Set("Foo Bar Baz"),
-			"avatarUrl": nil,
+			"avatarUrl": db.User.AvatarURL.Set("https://avatars.dicebear.com/api/micah/FooBar.svg"),
 		},
 		{
-			"email":     db.User.Email.Set("foo@bar.com"),
-			"username":  db.User.Username.Set("FooBar"),
-			"password":  db.User.Password.Set("foobar1234"),
-			"fullname":  db.User.FullName.Set("Foo Bar Baz"),
-			"avatarUrl": nil,
+			"email":     db.User.Email.Set("hooman@business.co"),
+			"username":  db.User.Username.Set("hooman"),
+			"password":  db.User.Password.Set("hooman1234"),
+			"fullname":  db.User.FullName.Set("Some Random Hooman"),
+			"avatarUrl": db.User.AvatarURL.Set("https://avatars.dicebear.com/api/micah/FooBar.svg"),
 		},
 	}
 
