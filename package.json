@@ -1,7 +1,0 @@
-{
-  "name": "post-it",
-  "workspaces": [
-    "backend",
-    "frontend"
-  ]
-}

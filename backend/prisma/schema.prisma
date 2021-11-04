@@ -1,0 +1,89 @@
+generator client {
+  provider = "go run github.com/prisma/prisma-client-go"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email      String
+  username   String   @id
+  password   String
+  fullName   String   @map("full_name")
+  avatarUrl  String   @map("avatar_url")
+  about      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  posts      Post[]
+  comments   Comment[]
+  reactions  Reaction[]
+  following  Follows[] @relation("following")
+  followers  Follows[] @relation("follower")
+
+  @@map("user")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user      User     @relation(fields: [userId], references: [username])
+  comments  Comment[]
+  reactions Reaction[]
+
+  @@map("post")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  userId    String   @map("user_id")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [username])
+
+  @@map("comment")
+}
+
+model Reaction {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  userId    String   @map("user_id")
+  type      ReactionType
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  post      Post     @relation(fields: [postId], references: [id])
+  user      User     @relation(fields: [userId], references: [username])
+
+  @@map("reaction")
+}
+
+enum ReactionType {
+  LIKE
+  HAHA
+  SAD
+  ANGRY
+}
+
+model Follows {
+  followingId String   @map("following_id")
+  followerId  String   @map("follower_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  following   User     @relation("following", fields: [followingId], references: [username])
+  follower    User     @relation("follower", fields: [followerId], references: [username])
+
+  @@map("follows")
+  @@id([followingId, followerId])
+}
