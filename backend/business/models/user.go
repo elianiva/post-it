@@ -33,6 +33,11 @@ func (_ User) GetSchema() (string, error) {
 	return sql, nil
 }
 
-func (_ User) Drop() string {
-	return `DROP TABLE IF EXISTS "users" CASCADE`
+func (_ User) Drop() (string, error) {
+	sql, _, err := bob.DropTableIfExists("users").Cascade().ToSql()
+	if err != nil {
+		return "", err
+	}
+
+	return sql, nil
 }

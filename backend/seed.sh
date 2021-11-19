@@ -5,4 +5,4 @@
 set -ex
 
 # Seeding command
-go run ./seeder/
+go run ./seeder/...

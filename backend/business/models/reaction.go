@@ -43,6 +43,11 @@ func (_ Reaction) GetSchema() (string, error) {
 	return sql, nil
 }
 
-func (_ Reaction) Drop() string {
-	return `DROP TABLE IF EXISTS "reactions" CASCADE`
+func (_ Reaction) Drop() (string, error) {
+	sql, _, err := bob.DropTableIfExists("reactions").Cascade().ToSql()
+	if err != nil {
+		return "", err
+	}
+
+	return sql, nil
 }

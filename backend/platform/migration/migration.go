@@ -21,10 +21,16 @@ func Drop(ctx context.Context, conn *pgx.Conn) error {
 
 	for name, entity := range schemas {
 		fmt.Print("Dropping table " + name + "... ")
-		_, err := tx.Exec(ctx, entity.Drop())
+		drop, err := entity.Drop();
+		if err != nil {
+			return err;
+		}
+
+		_, err = tx.Exec(ctx, drop)
 		if err != nil {
 			return err
 		}
+
 		fmt.Println("Done!")
 	}
 
